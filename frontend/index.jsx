@@ -17,7 +17,7 @@ window.onload = async () => {
   const isSignedIn = await wallet.startUp()
  
   ReactDOM.render(
-    <App isSignedIn={isSignedIn} contractId={CONTRACT_ADDRESS} wallet={wallet} />,
+    <App/>,
     document.getElementById('root')
   );
 }
