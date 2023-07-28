@@ -12,7 +12,8 @@
     "test:unit": "cd contract && npm test",
     "test:integration": "cd integration-tests && npm test -- -- \"./contract/build/contract.wasm\"",
     "test:e2e": "cd frontend && npm run test:e2e",
-    "postinstall": "cd frontend && npm install && cd .. && cd integration-tests && npm install && cd .. && cd contract && npm install"
+    "postinstall": "cd frontend && npm install && cd .. && cd integration-tests && npm install && cd .. && cd contract && npm install" , 
+    "clean":  "cd contract && echo '' > neardev/dev-account && echo '' > neardev/dev-account.env"
   },
   "devDependencies": {
     "near-cli": "^3.3.0"

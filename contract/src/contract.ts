@@ -1,75 +1,93 @@
-import { NearBindgen, near, call, view, initialize, UnorderedMap } from 'near-sdk-js'
+import { NearBindgen, near, call, view, initialize, UnorderedMap, AccountId  ,LookupMap, Vector  } from 'near-sdk-js'
 
 import { assert } from './utils'
-import { Donation, STORAGE_COST } from './model'
+import { Donation, Product, STORAGE_COST  } from './model'
+import { User, Owner  } from './model';
+import { promiseCreate } from 'near-sdk-js/lib/api';
+
+
+
 
 @NearBindgen({})
 class DonationContract {
   beneficiary: string = "v1.faucet.nonofficial.testnet";
   donations = new UnorderedMap<bigint>('map-uid-1');
+  user_arr  = new  LookupMap<User>('acc_user')  ; 
+  owner_arr = new LookupMap<Owner>('acc_owner')    ; 
+  all_product = new  LookupMap<Product>('id_product')
+
+
 
   @initialize({ privateFunction: true })
   init({ beneficiary }: { beneficiary: string }) {
     this.beneficiary = beneficiary
   }
+  @call({})
+  create_owner({owner_id , name , desc } : { owner_id : AccountId  , name  , desc}) 
+  {
+    if(this.owner_arr.get(owner_id)){ return this.owner_arr.get(owner_id) }
+    const owner  = new Owner(owner_id  ,name ,desc )  ;   
+    this.owner_arr.set(owner_id , owner)    ;  
+    return owner   ; 
+  } 
+  @call({})
+  create_user ({user_id , name , desc } : {user_id : AccountId  , name : string   , desc: string} ) 
+  {
+    if(this.owner_arr.get(user_id)){ return this.owner_arr.get(user_id) }
 
-  @call({ payableFunction: true })
-  donate() {
-    // Get who is calling the method and how much $NEAR they attached
-    let donor = near.predecessorAccountId();
-    let donationAmount: bigint = near.attachedDeposit() as bigint;
+    const user  = new User(user_id  ,name ,desc )  ;
+       
+    this.user_arr.set(user_id , user)    ;  
+    return user ;
+  }
+  @call({})
+  create_product({owner_id ,product_id, price , name , desc  , type , timelimit }: {owner_id : AccountId  , product_id : string   , price : bigint  , name : string  , desc :string  , type :string  , timelimit : number}  )  
+  {
+   assert(this.owner_arr.containsKey(owner_id ), "you dont have an owner")  ; 
+    const  product  =new Product( product_id ,owner_id  ,price  ,name , desc  ,type  , timelimit) ;
+    const owner:Owner  =  this.owner_arr.get(owner_id)  ;  
+    owner.own_product.push(product)   ;
+    this.owner_arr.set(owner_id,owner)  ; 
+    this.all_product.set(product_id ,product)  ;  
+    return product  ;  
+  }
+  @call({ payableFunction: true } )
+  pay_money( {user_id , product_id  , payment , timeused}:{user_id:AccountId ,  product_id :string   ,  payment : bigint , timeused : number } )
+  { 
+    
 
-    let donatedSoFar = this.donations.get(donor, {defaultValue: BigInt(0)})
-    let toTransfer = donationAmount;
-
-    // This is the user's first donation, lets register it, which increases storage
-    if (donatedSoFar == BigInt(0)) {
-      assert(donationAmount > STORAGE_COST, `Attach at least ${STORAGE_COST} yoctoNEAR`);
-
-      // Subtract the storage cost to the amount to transfer
-      toTransfer -= STORAGE_COST
-    }
-
-    // Persist in storage the amount donated so far
-    donatedSoFar += donationAmount
-    this.donations.set(donor, donatedSoFar)
-    near.log(`Thank you ${donor} for donating ${donationAmount}! You donated a total of ${donatedSoFar}`);
+    assert(this.user_arr.containsKey(user_id), "you dont have an owner")  ;
+    const product  = this.all_product.get(product_id )  ; 
+    const  owner_id  = product.product_owner_id   ;
+    let price:bigint  = product.price  + STORAGE_COST  ;  
+    assert( payment  > price, `Attach at least ${price} yoctoNEAR`); 
 
     // Send the money to the beneficiary
-    const promise = near.promiseBatchCreate(this.beneficiary)
-    near.promiseBatchActionTransfer(promise, toTransfer)
+    const promise = near.promiseBatchCreate(owner_id)
+    near.promiseBatchActionTransfer(promise, price - STORAGE_COST)
 
-    // Return the total amount donated so far
-    return donatedSoFar.toString()
-  }
-
-  @call({ privateFunction: true })
-  change_beneficiary(beneficiary) {
-    this.beneficiary = beneficiary;
-  }
-
-  @view({})
-  get_beneficiary(): string { return this.beneficiary }
-
-  @view({})
-  number_of_donors(): number { return this.donations.length }
-
-  @view({})
-  get_donations({ from_index = 0, limit = 50 }: { from_index: number, limit: number }): Donation[] {
-    let ret: Donation[] = []
-    let accounts = this.donations.keys({start: from_index, limit})
-    for (let account_id of accounts) {
-      const donation: Donation = this.get_donation_for_account({ account_id })
-      ret.push(donation)
+    const rent_product = new Product(product_id, owner_id  , price , product.name  , product.desc , product.type , timeused)
+    const user:User =  this.user_arr.get(user_id)  ;
+    user.used_product.push(product)  ; 
+    this.user_arr.set(user_id,user)  ; 
+    return rent_product   ; 
+  } 
+  @call({})
+  remove_product({user_id , product_id} : {user_id : AccountId , product_id : string})
+  {
+    const  user :User  =this.user_arr.get(user_id)  ; 
+    let  products : Vector<Product>  = user.used_product  ;
+    let remove_product: Product = null ;
+    for(let i =0  ; i < products.length   ; i++) 
+    {
+        if(products.get(i).product_id == product_id)
+        {
+          remove_product =user.used_product.swapRemove(i)  ; 
+        } 
     }
-    return ret
-  }
+    return remove_product ; 
 
-  @view({})
-  get_donation_for_account({ account_id }: { account_id: string }): Donation {
-    return {
-      account_id,
-      total_amount: this.donations.get(account_id).toString()
-    }
+
   }
+ 
 }
