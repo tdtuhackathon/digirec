@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
 import "regenerator-runtime/runtime";
-import React from "react";
 
 export default function ImgContainer({ imgLink }) {
   return (
