@@ -4,6 +4,7 @@ import React from 'react';
 import './assets/global.css';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
+import ProductDescription from './components/ProductDescription';
 
 import { EducationalText, SignInPrompt, SignOutButton } from './ui-components';
 
@@ -11,8 +12,11 @@ function App() {
   return ( 
     <div>
       <Navbar/>
-      <div className='contianer'>
-        <Sidebar/>
+      <div style={{display: 'flex', padding: '60px'}}>
+        <div style={{width: '50%'}}></div>
+        <div style={{flex: '1'}}>
+          <ProductDescription/>
+        </div>
       </div>
     </div>
    );
