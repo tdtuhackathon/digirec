@@ -7,14 +7,14 @@ import Upper from "./Upper";
 function Sidebar() {
 
     //usestate
-    const [sidebarWidth, setSidebarWidth] = useState('w-56');
+    const [sidebarWidth, setSidebarWidth] = useState('min-w-[300px]');
 
     //function handle expended change
     const handleExpendedChange = (isExpended) => {
         if (isExpended) {
-            setSidebarWidth('w-14');
+            setSidebarWidth('min-w-[56px]');
         } else {
-            setSidebarWidth('w-56');
+            setSidebarWidth('min-w-[300px]');
         }
     };
 
@@ -22,7 +22,7 @@ function Sidebar() {
         <div className={`relative ${sidebarWidth} min-h-screen border-r border-gray-300`}>
             {/* handle event sidebar close/open */}
             <Upper onExpendedChange={handleExpendedChange} />
-            {sidebarWidth === 'w-14' ? <Bottom /> : <Bottom isExpended={true} />} 
+            {sidebarWidth === 'min-w-[56px]' ? <Bottom /> : <Bottom isExpended={true} />} 
         </div>
     );
 }

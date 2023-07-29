@@ -49,11 +49,11 @@ function Route({ isExpended }) {
       {menuItems.map(({ text, icon, state, ref, color, box, left }) => (
         <div key={text}>
           {!isExpended ? (
-            <div className={`flex justify-center items-center ml-8 w-[192px] h-11 mt-[20px] rounded-full bg-[${color}] shadow-${box} ${box}==='xl' ? shadow-black : shadow-none`}>
+            <div className={`flex justify-center items-center ml-8 w-[200px] h-12 mt-[20px] rounded-full bg-[${color}] shadow-${box} ${box}==='xl' ? shadow-black : shadow-none`}>
               <img className={`mr-[14px] mb-[4px] ml-${left}`} src={icon} alt={text} />
               <a
                 href={ref}
-                className={`text-${state ? 'gray' : 'black'} ${state ? 'pointer-events-none' : 'pointer-events-auto'} text-base`}
+                className={`text-${state ? 'gray' : 'black'} ${state ? 'pointer-events-none' : 'pointer-events-auto'} text-base hover:no-underline`}
               >
                 {text}
               </a>

@@ -1,5 +1,5 @@
 import DIGIREC from '../../assets/images/DIGIREC.svg'
-import Logo from '../../assets/images/Logo.svg'
+import Logo from '../../assets/images/logo.svg'
 
 function LogoContainer() {
     return ( 

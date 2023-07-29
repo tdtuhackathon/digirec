@@ -2,23 +2,22 @@ import 'regenerator-runtime/runtime';
 import React from 'react';
 
 import './assets/global.css';
-import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
-import ProductDescription from './components/ProductDescription';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import ProductDetail from './pages/ProductDetail';
 
 import { EducationalText, SignInPrompt, SignOutButton } from './ui-components';
 
 function App() {
   return ( 
-    <div>
-      <Navbar/>
-      <div style={{display: 'flex', padding: '60px'}}>
-        <div style={{width: '50%'}}></div>
-        <div style={{flex: '1'}}>
-          <ProductDescription/>
-        </div>
+    <Router>
+      <div>
+        <Routes>
+          <Route path='/' element={<Home/>} />
+          <Route path='/productdetail' element={<ProductDetail/>} />
+        </Routes>
       </div>
-    </div>
+    </Router>
    );
 }
 
