@@ -1,7 +1,7 @@
 /* Talking with a contract often involves transforming data, we recommend you to encapsulate that logic into a class */
 
 import { utils } from 'near-api-js'
-
+import { Wallet } from './near-wallet' 
 export class Contract {
 
   constructor({ contractId, walletToUse }) {

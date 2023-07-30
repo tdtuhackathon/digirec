@@ -7,7 +7,7 @@ import { Wallet } from './near-wallet'
 const wallet = new Wallet({ createAccessKeyFor: process.env.CONTRACT_NAME })
 
 // Abstract the logic of interacting with the contract to simplify your project
-const contract = new Contract({ contractId: process.env.CONTRACT_NAME, walletToUse: wallet });
+const contract = new Contract({contractId : process.env.CONTRACT_NAME , wallet});
 
 // Setup on page load
 window.onload = async () => {

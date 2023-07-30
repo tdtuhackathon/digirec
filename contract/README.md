@@ -63,7 +63,23 @@ To initialize the contract yourself do:
 ```bash
 # Use near-cli to initialize contract (optional)
 near call <dev-account> init '{"beneficiary":"<account>"}' --accountId <dev-account>
+near call  dev-1690628638889-48269004371528 create_user '{"user_id":"<account>" , "name":"phuc"   , "desc":"animal" } ' --accountId dev-1690617589165-76075219779135
+
 ```
+
+## creating the user 
+```
+near call dev-1690733425207-90364926461961 create_user  '{"name" : "user"   , "desc": "owner" }' --accountId dev-1690733425207-90364926461961
+
+near call dev-1690733425207-90364926461961 create_owner '{"name" : "owner"   , "desc": "user"}' --accountId dev-1690733425207-90364926461961
+
+near call dev-1690733425207-90364926461961 create_product '{ "product_id" : "1"   , "price" : 12 , "name" :"animal"  , "desc" : "asdfs"  , "type" :"dfa"  , "timelimit" : 34}' --accountId dev-1690733425207-90364926461961
+
+ 
+```
+
+near call  dev-1690629219699-92813206205571 create_product '{"product_id": "1", "price": 10 , "name": "animal","desc": "asdfs","type": "dfa","timelimit": 34 }' --accountId  dev-1690629219699-92813206205571
+
 
 <br />
 
@@ -74,6 +90,8 @@ near call <dev-account> init '{"beneficiary":"<account>"}' --accountId <dev-acco
 
 ```bash
 near view <dev-account> beneficiary
+near view dev-1690617589165-76075219779135  get_user '{"user_id":"<account>"}' 
+
 ```
 
 <br />

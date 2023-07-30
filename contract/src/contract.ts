@@ -1,17 +1,17 @@
-import { NearBindgen, near, call, view, initialize, UnorderedMap, AccountId  ,LookupMap, Vector  } from 'near-sdk-js'
+import { NearBindgen, near, call, view, initialize, UnorderedMap, AccountId  ,LookupMap, Vector, Balance  } from 'near-sdk-js'
 
 import { assert } from './utils'
-import { Donation, Product, STORAGE_COST  } from './model'
+import {  Product, STORAGE_COST  } from './model'
 import { User, Owner  } from './model';
 import { promiseCreate } from 'near-sdk-js/lib/api';
-
+import { utils } from 'near-api-js'
 
 
 
 @NearBindgen({})
 class DonationContract {
   beneficiary: string = "v1.faucet.nonofficial.testnet";
-  donations = new UnorderedMap<bigint>('map-uid-1');
+  
   user_arr  = new  LookupMap<User>('acc_user')  ; 
   owner_arr = new LookupMap<Owner>('acc_owner')    ; 
   all_product = new  LookupMap<Product>('id_product')
@@ -23,28 +23,40 @@ class DonationContract {
     this.beneficiary = beneficiary
   }
   @call({})
-  create_owner({owner_id , name , desc } : { owner_id : AccountId  , name  , desc}) 
-  {
+  create_owner({ name , desc } : {  name  , desc}) 
+  { 
+    // get the signin account 
+    let owner_id = near.signerAccountId();
+
     if(this.owner_arr.get(owner_id)){ return this.owner_arr.get(owner_id) }
     const owner  = new Owner(owner_id  ,name ,desc )  ;   
     this.owner_arr.set(owner_id , owner)    ;  
     return owner   ; 
   } 
   @call({})
-  create_user ({user_id , name , desc } : {user_id : AccountId  , name : string   , desc: string} ) 
+  create_user ({ name , desc } : { name : string   , desc: string} ) 
   {
-    if(this.owner_arr.get(user_id)){ return this.owner_arr.get(user_id) }
-
+    
+    let user_id = near.signerAccountId();
+    if(this.user_arr.get(user_id)){ return this.user_arr.get(user_id) }
     const user  = new User(user_id  ,name ,desc )  ;
        
     this.user_arr.set(user_id , user)    ;  
     return user ;
   }
-  @call({})
-  create_product({owner_id ,product_id, price , name , desc  , type , timelimit }: {owner_id : AccountId  , product_id : string   , price : bigint  , name : string  , desc :string  , type :string  , timelimit : number}  )  
+  @view({})
+  get_user ({user_id }:{user_id  :AccountId} )  
   {
-   assert(this.owner_arr.containsKey(owner_id ), "you dont have an owner")  ; 
-    const  product  =new Product( product_id ,owner_id  ,price  ,name , desc  ,type  , timelimit) ;
+    return  this.user_arr.get(user_id)  ; 
+  }
+  @call({})
+  create_product({product_id, price , name , desc  , type , timelimit }: { product_id : string , price : number , name : string  , desc :string  , type :string  , timelimit : number}  )  
+  { 
+    // the price of the product 
+    let product_price : Balance  = price as unknown as Balance  ;
+    let owner_id = near.predecessorAccountId();
+    assert(this.owner_arr.containsKey(owner_id ), "you dont have an owner")  ; 
+    const  product  =new Product( product_id ,owner_id  , product_price ,name , desc  ,type  , timelimit) ;
     const owner:Owner  =  this.owner_arr.get(owner_id)  ;  
     owner.own_product.push(product)   ;
     this.owner_arr.set(owner_id,owner)  ; 
@@ -52,17 +64,19 @@ class DonationContract {
     return product  ;  
   }
   @call({ payableFunction: true } )
-  pay_money( {user_id , product_id  , payment , timeused}:{user_id:AccountId ,  product_id :string   ,  payment : bigint , timeused : number } )
+  pay_money( { product_id  , timeused}:{  product_id :string    , timeused : number } )
   { 
     
-
+    let user_id = near.signerAccountId();
+    let paymentAmount: bigint = near.attachedDeposit() as bigint;
     assert(this.user_arr.containsKey(user_id), "you dont have an owner")  ;
+
     const product  = this.all_product.get(product_id )  ; 
     const  owner_id  = product.product_owner_id   ;
     let price:bigint  = product.price  + STORAGE_COST  ;  
-    assert( payment  > price, `Attach at least ${price} yoctoNEAR`); 
+    assert( paymentAmount  > price, `Attach at least ${price} yoctoNEAR`); 
 
-    // Send the money to the beneficiary
+    // Send the money to the product Owner 
     const promise = near.promiseBatchCreate(owner_id)
     near.promiseBatchActionTransfer(promise, price - STORAGE_COST)
 
@@ -85,9 +99,8 @@ class DonationContract {
           remove_product =user.used_product.swapRemove(i)  ; 
         } 
     }
+    this.user_arr.set(user_id , user)  ; 
     return remove_product ; 
-
-
-  }
+ }
  
 }
