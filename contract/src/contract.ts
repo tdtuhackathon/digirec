@@ -13,14 +13,42 @@ class DonationContract {
   beneficiary: string = "v1.faucet.nonofficial.testnet";
   
   user_arr  = new  LookupMap<User>('acc_user')  ; 
-  owner_arr = new LookupMap<Owner>('acc_owner')    ; 
-  all_product = new  LookupMap<Product>('id_product')
+  owner_arr = new  LookupMap<Owner>('acc_owner')    ; 
+  product_arr = new LookupMap<Product>('id_product');
+  all_product = new Vector<Product>('loop_product');
+
 
 
 
   @initialize({ privateFunction: true })
   init({ beneficiary }: { beneficiary: string }) {
     this.beneficiary = beneficiary
+  }
+
+  @view({})
+  get_all_product ()  
+  {
+    return this.all_product.toArray  ; 
+  } 
+  @view({})
+  get_user ({user_id }:{user_id  :AccountId} )  
+  {
+    return  this.user_arr.get(user_id)  ; 
+  }
+  @view({})
+  get_user_product ({user_id }:{user_id  :AccountId} )  
+  {
+    return  this.user_arr.get(user_id).used_product.toArray  ; 
+  }
+  @view({})
+  get_owner ({owner_id }:{owner_id  :AccountId} )  
+  {
+    return  this.owner_arr.get(owner_id)  ; 
+  }
+  @view({})
+  get_owner_product ({owner_id }:{owner_id  :AccountId} )  
+  {
+    return  this.owner_arr.get(owner_id).own_product.toArray  ; 
   }
   @call({})
   create_owner({ name , desc } : {  name  , desc}) 
@@ -44,11 +72,6 @@ class DonationContract {
     this.user_arr.set(user_id , user)    ;  
     return user ;
   }
-  @view({})
-  get_user ({user_id }:{user_id  :AccountId} )  
-  {
-    return  this.user_arr.get(user_id)  ; 
-  }
   @call({})
   create_product({product_id, price , name , desc  , type , timelimit }: { product_id : string , price : number , name : string  , desc :string  , type :string  , timelimit : number}  )  
   { 
@@ -59,10 +82,12 @@ class DonationContract {
     const  product  =new Product( product_id ,owner_id  , product_price ,name , desc  ,type  , timelimit) ;
     const owner:Owner  =  this.owner_arr.get(owner_id)  ;  
     owner.own_product.push(product)   ;
+    this.all_product.push(product)  ; 
     this.owner_arr.set(owner_id,owner)  ; 
-    this.all_product.set(product_id ,product)  ;  
+    this.product_arr.set(product_id ,product)  ;  
     return product  ;  
   }
+
   @call({ payableFunction: true } )
   pay_money( { product_id  , timeused}:{  product_id :string    , timeused : number } )
   { 
@@ -71,7 +96,7 @@ class DonationContract {
     let paymentAmount: bigint = near.attachedDeposit() as bigint;
     assert(this.user_arr.containsKey(user_id), "you dont have an owner")  ;
 
-    const product  = this.all_product.get(product_id )  ; 
+    const product  = this.product_arr.get(product_id )  ; 
     const  owner_id  = product.product_owner_id   ;
     let price:bigint  = product.price  + STORAGE_COST  ;  
     assert( paymentAmount  > price, `Attach at least ${price} yoctoNEAR`); 
