@@ -8,12 +8,12 @@ import ProductDetail from './pages/ProductDetail';
 
 import { EducationalText, SignInPrompt, SignOutButton } from './ui-components';
 
-function App() {
+function App({wallet}) {
   return ( 
     <Router>
       <div>
         <Routes>
-          <Route path='/' element={<Home/>} />
+          <Route path='/' element={<Home wallet={wallet}/>} />
           <Route path='/productdetail' element={<ProductDetail/>} />
         </Routes>
       </div>
