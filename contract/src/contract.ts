@@ -57,6 +57,7 @@ class DonationContract {
     let owner_id = near.signerAccountId();
 
     if(this.owner_arr.get(owner_id)){ return this.owner_arr.get(owner_id) }
+    // create the owner 
     const owner  = new Owner(owner_id  ,name ,desc )  ;   
     this.owner_arr.set(owner_id , owner)    ;  
     return owner   ; 
@@ -67,8 +68,8 @@ class DonationContract {
     
     let user_id = near.signerAccountId();
     if(this.user_arr.get(user_id)){ return this.user_arr.get(user_id) }
-    const user  = new User(user_id  ,name ,desc )  ;
-       
+    // create the user 
+    const user  = new User(user_id  ,name ,desc )  ;  
     this.user_arr.set(user_id , user)    ;  
     return user ;
   }
@@ -117,6 +118,7 @@ class DonationContract {
     const  user :User  =this.user_arr.get(user_id)  ; 
     let  products : Vector<Product>  = user.used_product  ;
     let remove_product: Product = null ;
+    // loop thourght the product that the user own 
     for(let i =0  ; i < products.length   ; i++) 
     {
         if(products.get(i).product_id == product_id)
@@ -124,6 +126,7 @@ class DonationContract {
           remove_product =user.used_product.swapRemove(i)  ; 
         } 
     }
+    // update the value in the user hashmap 
     this.user_arr.set(user_id , user)  ; 
     return remove_product ; 
  }
