@@ -1,151 +1,140 @@
-// Find all our documentation at https://docs.near.org
-// import { NearBindgen, near, call, view } from 'near-sdk-js';
+import { NearBindgen, near, call, view, initialize, UnorderedMap, AccountId  ,LookupMap, Vector, Balance  } from 'near-sdk-js'
 
-// @NearBindgen({})
-// class HelloNear {
-//   message: string = "Hello";
+import { assert } from './utils'
+import {  Product, STORAGE_COST  } from './model'
+import { User, Owner  } from './model';
+import { promiseCreate } from 'near-sdk-js/lib/api';
+import { utils } from 'near-api-js'
 
-//   @view({}) // This method is read-only and can be called for free
-//   get_greeting(): string {
-//     return this.message;
-//   }
+type ProductId = string; 
 
-//   @call({}) // This method changes the state, for which it cost gas
-//   set_greeting({ message }: { message: string }): void {
-//     near.log(`Saving greeting ${message}`);
-//     this.message = message;
-//   }
-// }
-// near call dev-1690006589328-41550865698546 set_greeting '{"message":"message ne"}' --account-id konodioda2411.testnet
-import { near , LookupMap   , UnorderedMap , NearBindgen , initialize, assert, Vector} from "near-sdk-js"
-import { AccountId  , Balance , view  , call } from "near-sdk-js"
-
-type ProductId =  string; 
-export class Product 
-{
-  product_id :  ProductId  ;  
-  name : string  ; 
-  total_supply : number  ;
-  price : Balance; 
-  decs  : string   ;  
-  owner :AccountId  ; 
-  constructor(product_id : ProductId, name: string, total_supply : number , price : Balance ,decs  : string   , owner :AccountId ) {
-    this.product_id = product_id ; 
-    this.name  = name  ; 
-    this.total_supply  = total_supply  ; 
-    this.price = price  ; 
-    this.decs  = decs  ; 
-    this.owner  = owner  ;
-  } 
-}
-export  class Shop 
-{
-  owner :AccountId     ; 
-  name : string  ; 
-  desc : string  ; 
-  total_product : number ;  
-  constructor(owner: AccountId, name: string, desc: string, total_product: number) {
-    this.owner = owner;
-    this.name = name;
-    this.desc = desc;
-    this.total_product = total_product;
-  }
-}
-@NearBindgen({})  
-class Contrat 
-{
+@NearBindgen({})
+class Digirec {
+  // beneficiary: string = "v1.faucet.nonofficial.testnet";
   
-  platform_name : AccountId = "";   
-  products_per_shop = new UnorderedMap <Vector <Product>>('map-uid-1'); 
-  product_per_id = new LookupMap <Product> ('product by id') ; 
-  products  = new Vector <Product> ('products')    ; 
-  shops = new UnorderedMap<Shop> ('shops')  ;    
-  allshops  = new Vector <Shop> ('all shop')   ; 
-  total :number   = 0  ;
-  total_product:number  = 0 
-  @initialize({ privateFunction: true })
-  init() {
-      this.platform_name  = near.currentAccountId();
+  user_arr  = new  LookupMap<User>('acc_user')  ; 
+  owner_arr = new  LookupMap<Owner>('acc_owner')    ; 
+  product_arr = new LookupMap<Product>('id_product');
+  all_product = new Vector<Product>('loop_product');
+  // user_arr  = LookupMap<User> ; 
+  // owner_arr = LookupMap<Owner>    ; 
+  // product_arr = LookupMap<Product>;
+  // all_product =  Vector<Product>;
+
+  // @initialize({ privateFunction: true })
+  // init() {
+  //   this.user_arr = new LookupMap<User>('acc_user');
+  // }
+
+  @view({})
+  get_all_product ()  
+  {
+    return this.all_product ; 
+  } 
+  @view({})
+  get_product_by_id ({product_id}:{product_id : ProductId })  
+  {
+    return this.product_arr.get(product_id)  ; 
+  } 
+  @view({})
+  get_user ({user_id }:{user_id  :AccountId} )  
+  {
+    return  this.user_arr.get(user_id)  ; 
+  }
+  @view({})
+  get_user_product ({user_id }:{user_id  :AccountId} )  
+  {
+    return  this.user_arr.get(user_id).used_product.toArray  ; 
+  }
+  @view({})
+  get_owner ({owner_id }:{owner_id  :AccountId} )  
+  {
+    return  this.owner_arr.get(owner_id)  ; 
+  }
+  @view({})
+  get_owner_product ({owner_id }:{owner_id  :AccountId} )  
+  {
+    return  this.owner_arr.get(owner_id).own_product.toArray  ; 
   }
   @call({})
-  new_shop({ name , desc , total_product }: { name: string , desc:string , total_product:number } )
-  {
-      let  owner:AccountId  = near.currentAccountId()  ;
-      assert(!this.shops.get(owner), "shop already exits") ; 
-      let shop:Shop = new Shop(owner, name, desc, total_product)  ;  
-      
-      this.shops.set(owner  , shop )   ; 
-      this.allshops.push(shop)   ;
-      this.total += 1  ; 
+  create_owner({ name , desc } : {  name  , desc}) 
+  { 
+    // get the signin account 
+    let owner_id = near.signerAccountId();
 
-  }
-  @view({}) 
-  get_shop_by_id( { account_id }: { account_id: string }) : Shop{
+    if(this.owner_arr.get(owner_id)){ return this.owner_arr.get(owner_id) }
+    // create the owner 
+    const owner  = new Owner(owner_id  ,name ,desc )  ;   
+    this.owner_arr.set(owner_id , owner)    ;  
+    return owner   ; 
+  } 
+  @call({})
+  create_user ({ name , desc } : { name : string   , desc: string} ) 
+  {
     
-    return this.shops.get(account_id) ; 
-  }
-  @view({}) 
-  get_all_shops() :  Shop[]
-  {
-    let ret: Shop[]  = []  ;
-    for(let i   =0 ; i< this.allshops.length ; i++ )
-    {
-      ret.push(this.allshops.get(i));
-    }
-    return ret ;
-  }
-  @call ({}) 
-  new_product(
-    { product_id  , name,total_supply,price ,desc}: { product_id: ProductId,name: string, total_supply: number,price: Balance, desc: string}
-
-  )  : Product{
-    let owner = near.currentAccountId();
-    assert(this.shops.get(owner), "Your Shop not exists");
-    let product = new Product(product_id , name , total_supply ,price , desc , owner);
-
-    let  products_set: Vector <Product> =  this.products_per_shop.get(owner) ?  this.products_per_shop.get(owner) : new Vector<Product>('map-uid-1');
-    products_set.push(product);
-
-    this.products_per_shop.set (owner, products_set);
-    this.product_per_id.set(product_id, product);
-    this.products.push( product);
-    return product ; 
-  }
-  @view({})
-  get_all_products() : Product[] {
-    let  all_products : Product[] = [];
-
-    for(let i   =0 ; i< this.products.length ; i++ )
-    {
-      all_products.push(this.products.get(i));
-    }
-
-    return  all_products; 
-  }
-  @view({})
-  get_product_by_id({product_id} : {product_id: ProductId}) : Product {
-    return this.product_per_id.get(product_id)  ;  
+    let user_id = near.signerAccountId();
+    if(this.user_arr.get(user_id)){ return this.user_arr.get(user_id) }
+    // create the user 
+    const user  = new User(user_id  ,name ,desc )  ;  
+    this.user_arr.set(user_id , user)    ;  
+    return user ;
   }
   @call({})
-  update_product ({product_id, price} : {product_id: ProductId, price: Balance}) : Product {
-    let product = this.get_product_by_id({product_id});
-    product.price = price;
-    this.product_per_id.set(product_id, product);
-    // Product Per Shop
-    // Update Products
-    return product; 
-  }
-  @view({})
-  get_products_by_owner( owner: AccountId) : Vector<Product> {
-    return this.products_per_shop.get(owner) ?  this.products_per_shop.get(owner) : new Vector<Product>('map-uid-1'); 
+  create_product({product_id, price , name , desc  , type , images , timelimit }: { product_id : string , price : number , name : string  , desc :string  , type :string, images: Vector<string>  , timelimit : number}  )  
+  { 
+    // the price of the product 
+    let product_price : Balance  = price as unknown as Balance  ;
+    let owner_id = near.predecessorAccountId();
+    assert(this.owner_arr.containsKey(owner_id), "you dont have an owner")  ; 
+    const  product  =new Product( product_id ,owner_id  , product_price ,name , desc  ,type  , images, timelimit) ;
+    const owner:Owner  =  this.owner_arr.get(owner_id)  ;  
+    owner.own_product.push(product)   ;
+    this.all_product.push(product)  ; 
+    this.owner_arr.set(owner_id,owner)  ; 
+    this.product_arr.set(product_id ,product)  ;  
+    return product  ;  
   }
 
+  @call({ payableFunction: true } )
+  pay_money( { product_id  , timeused}:{  product_id :string    , timeused : number } )
+  { 
+    
+    let user_id = near.signerAccountId();
+    let paymentAmount: bigint = near.attachedDeposit() as bigint;
+    assert(this.user_arr.containsKey(user_id), "you dont have an owner")  ;
+
+    const product  = this.product_arr.get(product_id )  ; 
+    const  owner_id  = product.product_owner_id   ;
+    let price:bigint  = product.price  + STORAGE_COST  ;  
+    assert( paymentAmount  > price, `Attach at least ${price} yoctoNEAR`); 
+
+    // Send the money to the product Owner 
+    const promise = near.promiseBatchCreate(owner_id)
+    near.promiseBatchActionTransfer(promise, price - STORAGE_COST)
+
+    const rent_product = new Product(product_id, owner_id  , price , product.name  , product.desc , product.type , product.images, timeused)
+    const user:User =  this.user_arr.get(user_id)  ;
+    user.used_product.push(product)  ; 
+    this.user_arr.set(user_id,user)  ; 
+    return rent_product   ; 
+  } 
+  @call({})
+  remove_product({user_id , product_id} : {user_id : AccountId , product_id : string})
+  {
+    const  user :User  =this.user_arr.get(user_id)  ; 
+    let  products : Vector<Product>  = user.used_product  ;
+    let remove_product: Product = null ;
+    // loop thourght the product that the user own 
+    for(let i =0  ; i < products.length   ; i++) 
+    {
+        if(products.get(i).product_id == product_id)
+        {
+          remove_product =user.used_product.swapRemove(i)  ; 
+        } 
+    }
+    // update the value in the user hashmap 
+    this.user_arr.set(user_id , user)  ; 
+    return remove_product ; 
+ }
+ 
 }
-
-
-//near deploy --accountId dev-1690020417337-36849238982762 --wasmFile contract/build/hello-near.wasm
-//near call dev-1690035120410-76098625316862 init  --accountId dev-1690035120410-76098625316862
-//near call dev-1690035120410-76098625316862 new_shop '{"name": "My Shop", "desc": "My Shop Description", "total_product": 10}' --accountId dev-1690035120410-76098625316862
-//near view dev-1690035120410-76098625316862 get_all_shops 
-//near view konodioda2411.testnet get_shop_by_id --accountId dev-1690025756562-44216038823925 --args '{"owner": "konodioda2411.testnet"}'
-//near view dev-1690031882612-66416453543066 get_shop_by_id '{"owner": "dev-1690030274885-34249227738510"}' --accountId dev-1690031882612-66416453543066

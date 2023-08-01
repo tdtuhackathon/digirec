@@ -19,7 +19,7 @@ function Sidebar() {
     };
 
     return ( 
-        <div className={`transitionPrimary fontSideBar relative ${sidebarWidth} minHeight border-r border-gray-300`}>
+        <div className={`transitionPrimary h-[85vh] fontSideBar relative ${sidebarWidth} border-r border-gray-300`}>
             {/* handle event sidebar close/open */}
             <Upper onExpendedChange={handleExpendedChange} />
             {sidebarWidth === 'min-w-[56px]' ? <Bottom /> : <Bottom isExpended={true} />} 

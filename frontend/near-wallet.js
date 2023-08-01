@@ -50,6 +50,8 @@ export class Wallet {
     const description = 'Please select a wallet to sign in.';
     const modal = setupModal(this.walletSelector, { contractId: this.createAccessKeyFor, description });
     modal.show();
+    const isSignedIn = this.walletSelector.isSignedIn();
+    return isSignedIn
   }
 
   // Sign-out method
@@ -57,6 +59,10 @@ export class Wallet {
     this.wallet.signOut();
     this.wallet = this.accountId = this.createAccessKeyFor = null;
     window.location.replace(window.location.origin + window.location.pathname);
+  }
+
+  get_isSignedIn() {
+    return this.walletSelector.isSignedIn()
   }
 
   // Make a read-only call to retrieve information from the network

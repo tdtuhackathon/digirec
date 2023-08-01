@@ -5,18 +5,21 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
-import ConfirmSucces from './pages/ConfirmSuccess';
+import ConfirmSuccess from './pages/ConfirmSuccess';
 
 import { EducationalText, SignInPrompt, SignOutButton } from './ui-components';
+import CreateProduct from './pages/CreateProduct';
 
-function App() {
+function App({wallet, contract}) {
+  
   return ( 
     <Router>
       <div>
         <Routes>
-          <Route path='/' element={<Home/>} />
-          <Route path='/productdetail' element={<ProductDetail/>} />
-          <Route path='/confirmsuccess' element={<ConfirmSucces/>} />
+          <Route path='/' element={<Home wallet={wallet} contract={contract}/>} />
+          <Route path='/productdetail/:productId' element={<ProductDetail wallet={wallet} contract={contract}/>} />
+          <Route path='/confirmsuccess' element={<ConfirmSuccess/>} />
+          <Route path='/create-product' element={<CreateProduct wallet={wallet} contract={contract}/>} />
         </Routes>
       </div>
     </Router>
