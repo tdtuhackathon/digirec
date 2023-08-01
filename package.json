@@ -11,10 +11,13 @@
     "test": "pnpm run test:unit && pnpm run test:integration",
     "test:unit": "cd contract && pnpm test",
     "test:integration": "pnpm run build:contract && cd integration-tests && pnpm test -- -- \"./contract/build/hello_near.wasm\"",
-    "postinstall": "cd frontend && pnpm install && cd .. && cd integration-tests && pnpm install && cd .. && cd contract && pnpm install"
+    "postinstall": "cd frontend && pnpm install && cd .. && cd integration-tests && pnpm install && cd .. && cd contract && pnpm install",
+    "clean": "cd contract && echo '' > neardev/dev-account && echo '' > neardev/dev-account.env"
   },
   "devDependencies": {
     "near-cli": "^3.3.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "axios": "^1.4.0"
+  }
 }

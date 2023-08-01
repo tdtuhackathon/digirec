@@ -1,7 +1,7 @@
 import "regenerator-runtime/runtime";
 import React from "react";
 
-export default function ProductDescription({ title, lessor }) {
+export default function ProductDescription({ title, owner }) {
   return (
     <>
       <div className="productCard_info relative w-[248px] h-[70px] px-[12px] py-[8px] rounded-[24px] bg-white ">
@@ -9,7 +9,7 @@ export default function ProductDescription({ title, lessor }) {
           {title}
         </h4>
         <div className="info_lessor fontPrimary absolute bottom-[8px] text-[12px] overflow-hidden">
-          {lessor}
+          {owner}
         </div>
       </div>
     </>

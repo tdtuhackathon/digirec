@@ -5,17 +5,13 @@ import "react-datepicker/dist/react-datepicker.css";
 //import thư viện
 import StarRatings from "react-star-ratings";
 import IconVector from "../../assets/images/IconVector.svg";
-import RentNotification from "../../pages/RentNotification";
-import Confirm from "../Confirm";
 
 import IconSuccess from "../../assets/images/IconSuccess.svg";
 import ButtonConfirm from "../Confirm/ButtonConfirm";
 import LogoContainer from "../Navbar/LogoContainer";
-import CloseButton from "../Confirm/CloseButton";
 import InfoProduct from "../Confirm/InfoProduct";
 import InfoBill from "../Confirm/InfoBill";
 import CloseConfirm from "../../assets/images/CloseConfirm.svg";
-import ConfirmSuccess from "../../pages/ConfirmSuccess";
 
 function InfoProductDetail() {
   // Xử lý sự kiện khi người dùng chọn đánh giá

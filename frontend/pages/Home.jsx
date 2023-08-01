@@ -1,32 +1,28 @@
 import "regenerator-runtime/runtime";
 import React from "react";
 
+import Layout from "../components/Layout";
 import TopBar from "../components/TopBar";
 import Carousel from "../components/Carousel";
-import Sidebar from "../components/Sidebar";
-import Navbar from "../components/Navbar";
 import Welcome from "../components/Welcome";
 import '../index.css'
-import ConfirmSucces from "./ConfirmSuccess";
 
-export default function Home() {
+export default function Home({wallet, contract}) {
   return (
     <div>
-      <Navbar />
-      <div className="flex">
-        <Sidebar />
-        <div className="flex-1 pl-[60px] w-[70vw]">
+      <Layout wallet={wallet}>
+        <div className="flex-1 pl-[60px] w-[78vw]">
           <Welcome />
           <div>
             <TopBar msg1={"Recently Uploaded"} />
-            <Carousel />
+            <Carousel contract={contract} />
           </div>
           <div>
             <TopBar msg1={"Trending Lessor"} />
             <Carousel />
           </div>
         </div>
-      </div>
+      </Layout>
       {/* <ConfirmSucces/> */}
     </div>
   );
