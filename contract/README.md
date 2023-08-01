@@ -1,23 +1,35 @@
-# Hello NEAR Contract
+# Donation Contract
 
-The smart contract exposes two methods to enable storing and retrieving a greeting in the NEAR network.
+The smart contract exposes methods to handle donating $NEAR to a `beneficiary`.
 
 ```ts
-@NearBindgen({})
-class HelloNear {
-  greeting: string = "Hello";
+@call
+donate() {
+  // Get who is calling the method and how much $NEAR they attached
+  let donor = near.predecessorAccountId(); 
+  let donationAmount: bigint = near.attachedDeposit() as bigint;
 
-  @view // This method is read-only and can be called for free
-  get_greeting(): string {
-    return this.greeting;
+  let donatedSoFar = this.donations.get(donor) === null? BigInt(0) : BigInt(this.donations.get(donor) as string)
+  let toTransfer = donationAmount;
+
+  // This is the user's first donation, lets register it, which increases storage
+  if(donatedSoFar == BigInt(0)) {
+    assert(donationAmount > STORAGE_COST, `Attach at least ${STORAGE_COST} yoctoNEAR`);
+
+    // Subtract the storage cost to the amount to transfer
+    toTransfer -= STORAGE_COST
   }
 
-  @call // This method changes the state, for which it cost gas
-  set_greeting({ greeting }: { greeting: string }): void {
-    // Record a log permanently to the blockchain!
-    near.log(`Saving greeting ${greeting}`);
-    this.greeting = greeting;
-  }
+  // Persist in storage the amount donated so far
+  donatedSoFar += donationAmount
+  this.donations.set(donor, donatedSoFar.toString())
+
+  // Send the money to the beneficiary
+  const promise = near.promiseBatchCreate(this.beneficiary)
+  near.promiseBatchActionTransfer(promise, toTransfer)
+
+  // Return the total amount donated so far
+  return donatedSoFar.toString()
 }
 ```
 
@@ -44,32 +56,58 @@ cat ./neardev/dev-account
 # e.g. dev-1659899566943-21539992274727
 ```
 
+The contract will be automatically initialized with a default `beneficiary`.
+
+To initialize the contract yourself do:
+
+```bash
+# Use near-cli to initialize contract (optional)
+near call <dev-account> init '{"beneficiary":"<account>"}' --accountId <dev-account>
+near call  dev-1690628638889-48269004371528 create_user '{"user_id":"<account>" , "name":"phuc"   , "desc":"animal" } ' --accountId dev-1690617589165-76075219779135
+
+```
+
+## creating the user 
+```
+near call dev-1690733425207-90364926461961 create_user  '{"name" : "user"   , "desc": "owner" }' --accountId dev-1690733425207-90364926461961
+
+near call dev-1690733425207-90364926461961 create_owner '{"name" : "owner"   , "desc": "user"}' --accountId dev-1690733425207-90364926461961
+
+near call dev-1690733425207-90364926461961 create_product '{ "product_id" : "1"   , "price" : 12 , "name" :"animal"  , "desc" : "asdfs"  , "type" :"dfa"  , "timelimit" : 34}' --accountId dev-1690733425207-90364926461961
+
+ 
+```
+
+near call  dev-1690629219699-92813206205571 create_product '{"product_id": "1", "price": 10 , "name": "animal","desc": "asdfs","type": "dfa","timelimit": 34 }' --accountId  dev-1690629219699-92813206205571
+
+
 <br />
 
-## 2. Retrieve the Greeting
-
-`get_greeting` is a read-only method (aka `view` method).
+## 2. Get Beneficiary
+`beneficiary` is a read-only method (`view` method) that returns the beneficiary of the donations.
 
 `View` methods can be called for **free** by anyone, even people **without a NEAR account**!
 
 ```bash
-# Use near-cli to get the greeting
-near view <dev-account> get_greeting
+near view <dev-account> beneficiary
+near view dev-1690617589165-76075219779135  get_user '{"user_id":"<account>"}' 
+
 ```
 
 <br />
 
-## 3. Store a New Greeting
-`set_greeting` changes the contract's state, for which it is a `call` method.
+## 3. Get Number of Donations
 
-`Call` methods can only be invoked using a NEAR account, since the account needs to pay GAS for the transaction.
+`donate` forwards any attached money to the `beneficiary` while keeping track of it.
+
+`donate` is a payable method for which can only be invoked using a NEAR account. The account needs to attach money and pay GAS for the transaction.
 
 ```bash
-# Use near-cli to set a new greeting
-near call <dev-account> set_greeting '{"greeting":"howdy"}' --accountId <dev-account>
+# Use near-cli to donate 1 NEAR
+near call <dev-account> donate --amount 1 --accountId <account>
 ```
 
-**Tip:** If you would like to call `set_greeting` using your own account, first login into NEAR using:
+**Tip:** If you would like to `donate` using your own account, first login into NEAR using:
 
 ```bash
 # Use near-cli to login your NEAR account

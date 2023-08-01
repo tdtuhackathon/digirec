@@ -6,6 +6,7 @@ import Carousel from "../components/Carousel";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import Welcome from "../components/Welcome";
+// import ImageGallery from "../components/ImageGallery";
 
 export default function Home() {
   return (
@@ -23,6 +24,9 @@ export default function Home() {
             <TopBar msg1={"Trending Lessor"} />
             <Carousel />
           </div>
+          {/* <div>
+            <ImageGallery />
+          </div> */}
         </div>
       </div>
     </div>

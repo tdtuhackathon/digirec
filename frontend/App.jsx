@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 
-import { EducationalText, SignInPrompt, SignOutButton } from './ui-components';
+// import { EducationalText, SignInPrompt, SignOutButton } from './ui-components';
 
 function App() {
   return ( 
