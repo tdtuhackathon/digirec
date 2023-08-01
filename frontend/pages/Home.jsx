@@ -8,10 +8,10 @@ import Navbar from "../components/Navbar";
 import Welcome from "../components/Welcome";
 // import ImageGallery from "../components/ImageGallery";
 
-export default function Home() {
+export default function Home({ wallet }) {
   return (
     <div>
-      <Navbar />
+      <Navbar wallet={wallet} />
       <div className="flex">
         <Sidebar />
         <div className="flex-1 pl-[60px] w-[70vw]">
