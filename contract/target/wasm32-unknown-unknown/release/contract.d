@@ -1,0 +1,1 @@
+/Users/macos/Desktop/\ Benny/Tech\ stuff/BLOCKCHAIN/digirec/contract/target/wasm32-unknown-unknown/release/contract.wasm: /Users/macos/Desktop/\ Benny/Tech\ stuff/BLOCKCHAIN/digirec/contract/src/lib.rs
