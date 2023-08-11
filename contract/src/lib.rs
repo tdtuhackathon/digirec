@@ -1,5 +1,6 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LookupMap, UnorderedMap, Vector};
+use near_sdk::serde::__private::ser::FlatMapSerializeStruct;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{env, near_bindgen, AccountId, Balance, PanicOnDefault};
 
@@ -71,6 +72,72 @@ impl Contract {
       total_products: 0,
     }
   }
+  // get all the product in the products Unordermap using the product postion as  a key  
+  pub fn get_all_product(&self) ->Vec<Product>   
+  {
+    let mut all_products : Vec<Product> = Vec::new()   ;
+    
+    for i in  1..self.products.len( ) + 1  { 
+      if let Some(product) = self.products.get(&(i as u128)) 
+      {all_products.push(product)} 
+    }
+    all_products  
+  } 
+
+  pub fn get_product_by_id(&self , produdct_id : ProductId) -> Product  
+  {
+    self.product_by_id.get(&produdct_id).unwrap() 
+  }  
+  // get the user account id  unwrap to create an error if there is no user 
+  pub fn get_user(&self , user_id :AccountId  ) -> User
+  {
+    self.users.get(&user_id).unwrap()  
+  }
+  // get all the user product return an empty vector if there is no user
+  pub fn get_user_product(&self ,  user_id: AccountId ) ->Vec<Product> 
+  {
+    self.get_user(user_id).used_product 
+  }
+  // 
+
+  // get the user account id  unwrap to create an error if there is no user 
+  pub fn get_owner(&self , owner_id :AccountId  ) -> Owner
+  {
+    self.owners.get(&owner_id).unwrap()  
+  }
+  // get all the user product return an empty vector if there is no user
+  pub fn get_owner_product(&self ,  owner_id: AccountId ) ->Vec<Product> 
+  {
+    self.get_owner(owner_id).own_product
+  }
+// code to push all the user that were created 
+  pub fn get_all_user(&self ) ->Vec<User>
+  { 
+
+    let mut all_users : Vec<User> = Vec::new()   ;
+    
+    for i in  1..self.all_users.len() + 1  { 
+      if let Some(user) = self.all_users.get(&(i as u128)) 
+      {all_users.push(user)} 
+    }
+    all_users  
+  }
+
+  // code to push all the owner that were created 
+  pub fn get_all_owner(&self ) ->Vec<Owner>
+  { 
+
+    let mut all_owners : Vec<Owner> = Vec::new()   ;
+    
+    for i in  1..self.all_owners.len() + 1  { 
+      if let Some(owner) = self.all_owners.get(&(i as u128)) 
+      {all_owners.push(owner)} 
+    }
+    all_owners  
+  }
+
+
+
 
   pub fn create_owner(&mut self, name: String, desc: String) -> Owner {
     let owner_id = env::signer_account_id();
