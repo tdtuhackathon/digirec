@@ -3,8 +3,6 @@ import { NearBindgen, near, call, view, initialize, UnorderedMap, AccountId  ,Lo
 import { assert } from './utils'
 import {  Product, STORAGE_COST  } from './model'
 import { User, Owner  } from './model';
-import { promiseCreate } from 'near-sdk-js/lib/api';
-import { utils } from 'near-api-js'
 
 type ProductId = string; 
 
@@ -12,24 +10,27 @@ type ProductId = string;
 class Digirec {
   // beneficiary: string = "v1.faucet.nonofficial.testnet";
   
-  user_arr  = new  LookupMap<User>('acc_user')  ; 
-  owner_arr = new  LookupMap<Owner>('acc_owner')    ; 
-  product_arr = new LookupMap<Product>('id_product');
-  all_product = new Vector<Product>('loop_product');
-  // user_arr  = LookupMap<User> ; 
-  // owner_arr = LookupMap<Owner>    ; 
-  // product_arr = LookupMap<Product>;
-  // all_product =  Vector<Product>;
+  // user_arr  = new  LookupMap<User>('acc_user')  ; 
+  // owner_arr = new  LookupMap<Owner>('acc_owner')    ; 
+  // product_arr = new LookupMap<Product>('id_product');
+  // all_product = new Vector<Product>('loop_product');
+  user_arr : UnorderedMap<User> = new UnorderedMap<User>('acc_user');
+  owner_arr : UnorderedMap<Owner> = new UnorderedMap<Owner>('acc_owner'); 
+  product_arr : UnorderedMap<Product> = new UnorderedMap<Product>('id_product');
+  all_product :  Vector<Product> = new Vector<Product>('loop_product');
 
   // @initialize({ privateFunction: true })
   // init() {
-  //   this.user_arr = new LookupMap<User>('acc_user');
+  //   this.user_arr = new UnorderedMap<User>('acc_user');
+  //   this.owner_arr = new  UnorderedMap<Owner>('acc_owner');
+  //   this.product_arr = new UnorderedMap<Product>('id_product');
+  //   this.all_product = new Vector<Product>('loop_product');
   // }
 
   @view({})
   get_all_product ()  
   {
-    return this.all_product ; 
+    return this.product_arr ; 
   } 
   @view({})
   get_product_by_id ({product_id}:{product_id : ProductId })  
@@ -51,10 +52,16 @@ class Digirec {
   {
     return  this.owner_arr.get(owner_id)  ; 
   }
+
+  @view({})
+  get_all_owner () {
+    return this.owner_arr
+  }
+
   @view({})
   get_owner_product ({owner_id }:{owner_id  :AccountId} )  
   {
-    return  this.owner_arr.get(owner_id).own_product.toArray  ; 
+    return  this.owner_arr.get(owner_id).own_product  ; 
   }
   @call({})
   create_owner({ name , desc } : {  name  , desc}) 
@@ -64,7 +71,8 @@ class Digirec {
 
     if(this.owner_arr.get(owner_id)){ return this.owner_arr.get(owner_id) }
     // create the owner 
-    const owner  = new Owner(owner_id  ,name ,desc )  ;   
+    const owner_product = []
+    const owner  = new Owner(owner_id  ,name ,desc, owner_product )  ;   
     this.owner_arr.set(owner_id , owner)    ;  
     return owner   ; 
   } 
@@ -79,17 +87,27 @@ class Digirec {
     this.user_arr.set(user_id , user)    ;  
     return user ;
   }
+
+  private checkOwnerExists(key: string): boolean {
+    return this.owner_arr.get(key) !== null;
+  }
+
+  private checkUserExists(key: string): boolean {
+    return this.user_arr.get(key) !== null;
+  }
+  
   @call({})
-  create_product({product_id, price , name , desc  , type , images , timelimit }: { product_id : string , price : number , name : string  , desc :string  , type :string, images: Vector<string>  , timelimit : number}  )  
+  create_product({product_id, price , name , desc  , type , images, timelimit }: { product_id : string , price : number , name : string  , desc :string  , type :string, images: Vector<string>  , timelimit : number}  )  
   { 
     // the price of the product 
     let product_price : Balance  = price as unknown as Balance  ;
     let owner_id = near.predecessorAccountId();
-    assert(this.owner_arr.containsKey(owner_id), "you dont have an owner")  ; 
-    const  product  =new Product( product_id ,owner_id  , product_price ,name , desc  ,type  , images, timelimit) ;
+    assert(this.checkOwnerExists(owner_id), "you dont have an owner")  ; 
+    const  product  =new Product( product_id ,owner_id  , product_price ,name , desc  ,type  , images,  timelimit) ;
     const owner:Owner  =  this.owner_arr.get(owner_id)  ;  
     owner.own_product.push(product)   ;
     this.all_product.push(product)  ; 
+
     this.owner_arr.set(owner_id,owner)  ; 
     this.product_arr.set(product_id ,product)  ;  
     return product  ;  
@@ -101,7 +119,7 @@ class Digirec {
     
     let user_id = near.signerAccountId();
     let paymentAmount: bigint = near.attachedDeposit() as bigint;
-    assert(this.user_arr.containsKey(user_id), "you dont have an owner")  ;
+    assert(this.checkUserExists(user_id), "you dont have an owner")  ;
 
     const product  = this.product_arr.get(product_id )  ; 
     const  owner_id  = product.product_owner_id   ;

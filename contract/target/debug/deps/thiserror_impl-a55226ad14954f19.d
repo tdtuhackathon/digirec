@@ -1,0 +1,12 @@
+/Users/macos/Desktop/ Benny/Tech stuff/BLOCKCHAIN/digirec/contract/target/debug/deps/libthiserror_impl-a55226ad14954f19.dylib: /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/lib.rs /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/ast.rs /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/attr.rs /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/expand.rs /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/fmt.rs /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/generics.rs /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/prop.rs /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/valid.rs
+
+/Users/macos/Desktop/ Benny/Tech stuff/BLOCKCHAIN/digirec/contract/target/debug/deps/thiserror_impl-a55226ad14954f19.d: /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/lib.rs /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/ast.rs /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/attr.rs /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/expand.rs /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/fmt.rs /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/generics.rs /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/prop.rs /Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/valid.rs
+
+/Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/lib.rs:
+/Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/ast.rs:
+/Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/attr.rs:
+/Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/expand.rs:
+/Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/fmt.rs:
+/Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/generics.rs:
+/Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/prop.rs:
+/Users/macos/.cargo/registry/src/github.com-1ecc6299db9ec823/thiserror-impl-1.0.41/src/valid.rs:
